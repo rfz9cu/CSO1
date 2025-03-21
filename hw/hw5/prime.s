@@ -15,22 +15,19 @@
 ############################################################
 
 	.globl	modulo
-modulo:
-
-	# TO DO: write this function
 
 modulo:
-	push %rdi
+	pushq %rdi
 	# setting x
-	push %rsi
+	pushq %rsi
 	# setting y
-	cmp %rsi, $0
+	cmpq %rsi, 0
 	# seeing if y is 0
 	jmp return_zero
 	# if it is then jump to return zero
 
 loop:
-	cmp %rdi, $0
+	cmpq %rdi, 0
 	#checking if x is 0
 	jl end
 	# if x gets negative then go to end
@@ -44,8 +41,8 @@ end:
 	# adding the last subtraction
 	movq %rdi, %rax
 	# moving x into rax
-	pop %rsi
-	pop %rdi
+	popq %rsi
+	popq %rdi
 	# popping x and y
 	retq
 	#returning the value
@@ -53,8 +50,8 @@ end:
 return_zero:
 	xorq %rax, %rax
 	# xor rax with itself cause it will always be 0
-	pop %rsi
-	pop %rdi
+	popq %rsi
+	popq %rdi
 	# popping x and y
 	retq
 	# returning the value
@@ -71,10 +68,45 @@ return_zero:
 
 	.globl	gcd
 gcd:
+	pushq %rdi
+	# setting x
+	pushq %rsi
+	# setting y
+	cmpq %rdi, %rsi
+	# seeing if x == y
+	jmp return_y
+	# jumping to return_y
+	cmpq %rsi, 0
+	# seeing if y is equal to 0
+	jmp return_x
+	# jumping to return_x
+	callq modulo
+	# calling modulo
+	movq %rsi, %rdi
+	# moving y into the first argument
+	movq %rax, %rsi
+	# moving modulo result into the second argument
+	callq gcd
+	# calling gcd on y and the modulo result
+	popq %rsi
+	popq %rdi
+	# popping the arguments
+	retq
 
-	# TO DO: write this function
+return_y:
+	movq %rdi, %rax
+	# moving y into rax
+	popq %rsi
+	popq %rdi
+	# popping x and y
+	retq
 
-	xorq	%rax, %rax
+return_x:
+	movq %rsi, %rax
+	# moving x into rax
+	popq %rsi
+	popq %rdi
+	# popping x and y
 	retq
 
 ############################################################
@@ -89,11 +121,42 @@ gcd:
 
 	.globl	prime
 prime:
+	pushq %rdi
+	pushq %rsi
+	# pushing x and i
+	cmpq %rdi, %rsi
+	# is i in rsi? 
+	# checking if rdi is equal to i
+	# basically like it reached the end of i increments
+	jmp is_prime
+	# go to is prime function
+	call gcd
+	# calling gcd on x and i
+	cmpq 1, %rax
+	# checking if 1 is equal to gcd result
+	jmp not_prime
+	# if x greatest common denom isnt 1 then its not prime
+	incq %rsi
+	# increment i
+	jmp prime
+	# call the loop again
 
-	# TO DO: write this function
-
-	xorq	%rax, %rax
+is_prime:
+	movq 1, %rax
+	# moving 1 to result
+	popq %rsi
+	popq %rdi
+	# popping arguments
 	retq
+
+not_prime:
+	movq 0, %rax
+	# moving 0 to result
+	popq %rsi
+	popq %rdi
+	# popping arguements
+	retq
+
 
 ############################################################
 ##                end of prime routine                    ##
